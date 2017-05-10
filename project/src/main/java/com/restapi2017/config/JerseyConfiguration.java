@@ -1,5 +1,6 @@
 package com.restapi2017.config;
 
+import com.restapi2017.resources.BooksResource;
 import com.restapi2017.resources.UsersResource;
 import io.swagger.jaxrs.config.BeanConfig;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -19,6 +20,7 @@ public class JerseyConfiguration extends ResourceConfig {
         packages("io.swagger.jaxrs.listing");
 
         register(UsersResource.class);
+        register(BooksResource.class);
         register(CorsFilter.class);
 
         property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);

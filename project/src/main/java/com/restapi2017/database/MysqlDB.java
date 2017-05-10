@@ -1,6 +1,8 @@
 package com.restapi2017.database;
 
+import com.restapi2017.entity.BookEntity;
 import com.restapi2017.entity.UserEntity;
+import com.restapi2017.model.Book;
 import com.restapi2017.model.User;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
@@ -174,5 +176,135 @@ public class MysqlDB {
             }
         }
     }
+
+
+
+
+
+    public Collection<Book> getBooks() {
+        Query query = getEntityManager().createNamedQuery("books.findAll");
+        List<BookEntity> resultList = query.getResultList();
+
+        List<Book> list = Collections.emptyList();
+
+        if (resultList != null && !resultList.isEmpty()) {
+            list = Lists.newArrayListWithCapacity(resultList.size());
+
+            for (BookEntity book : resultList) {
+                list.add(buildBookResponse(book));
+            }
+        }
+
+        return list;
+    }
+
+    public Book getBook(String sid) {
+        Long id = null;
+
+        try {
+            id = Long.valueOf(sid);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        BookEntity bookEntity = getEntityManager()
+                .find(BookEntity.class, id);
+
+        if (bookEntity != null) {
+            return buildBookResponse(bookEntity);
+        }
+
+        return null;
+    }
+
+    public Book createBook(final Book book) {
+        BookEntity entity = buildBookEntity(book);
+
+        transaction(entity);
+
+        return new Book(String.valueOf(entity.getId()), entity.getTitle(), entity.getAuthors(), entity.getDescription(),
+                entity.getPrice());
+    }
+
+    public Book updateBook(Book book) {
+        Long id = null;
+
+        try {
+            id = Long.valueOf(book.getId());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        BookEntity bookEntity = getEntityManager()
+                .find(BookEntity.class, id);
+
+        if (bookEntity != null) {
+            bookEntity.setTitle(book.getTitle());
+            bookEntity.setAuthors(book.getAuthors());
+            bookEntity.setDescription(book.getDescription());
+            bookEntity.setPrice(book.getPrice());
+
+
+            transaction(bookEntity);
+
+        }
+
+        return buildBookResponse(bookEntity);
+    }
+
+    public void deleteBook(String sid) {
+        Long id = null;
+
+        try {
+            id = Long.valueOf(sid);
+        } catch (NumberFormatException e) {
+            return ;
+        }
+
+        BookEntity bookEntity = getEntityManager()
+                .find(BookEntity.class, id);
+
+        if (bookEntity != null) {
+            try {
+                getEntityManager().getTransaction().begin();
+
+                // Operations that modify the database should come here.
+                getEntityManager().remove(bookEntity);
+
+                getEntityManager().getTransaction().commit();
+            } finally {
+                if (getEntityManager().getTransaction().isActive()) {
+                    getEntityManager().getTransaction().rollback();
+                }
+            }
+
+        }
+
+    }
+
+    private Book buildBookResponse(BookEntity bookEntity) {
+        return new Book(bookEntity.getId().toString(), bookEntity.getTitle(), bookEntity.getAuthors(), bookEntity.getDescription(),
+                bookEntity.getPrice());
+    }
+
+    private BookEntity buildBookEntity(Book book) {
+        return new BookEntity(book.getTitle(), book.getAuthors(), book.getDescription(), book.getPrice());
+    }
+
+    private void transaction(BookEntity bookEntity){
+        try {
+            getEntityManager().getTransaction().begin();
+
+            // Operations that modify the database should come here.
+            getEntityManager().persist(bookEntity);
+
+            getEntityManager().getTransaction().commit();
+        } finally {
+            if (getEntityManager().getTransaction().isActive()) {
+                getEntityManager().getTransaction().rollback();
+            }
+        }
+    }
+
 
 }
