@@ -3,6 +3,7 @@ package com.restapi2017.database;
 import com.restapi2017.entity.UserEntity;
 import com.restapi2017.model.User;
 import jersey.repackaged.com.google.common.collect.Lists;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -11,7 +12,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-public class MysqlDB implements UserDatabase {
+@Component
+public class MysqlDB {
 
     private static final String HOST = "localhost";
     private static final int PORT = 3306;
@@ -48,7 +50,6 @@ public class MysqlDB implements UserDatabase {
         return entityManager;
     }
 
-    @Override
     public Collection<User> getUsers() {
         Query query = getEntityManager().createNamedQuery("users.findAll");
         List<UserEntity> resultList = query.getResultList();
@@ -66,7 +67,6 @@ public class MysqlDB implements UserDatabase {
         return list;
     }
 
-    @Override
     public User getUser(String sid) {
         Long id = null;
 
@@ -86,7 +86,6 @@ public class MysqlDB implements UserDatabase {
         return null;
     }
 
-    @Override
     public User createUser(final User user) {
         UserEntity entity = buildUserEntity(user);
 
@@ -96,7 +95,6 @@ public class MysqlDB implements UserDatabase {
                 entity.getAddress(), entity.getCity());
     }
 
-    @Override
     public User updateUser(User user) {
         Long id = null;
 
@@ -123,7 +121,6 @@ public class MysqlDB implements UserDatabase {
         return buildUserResponse(userEntity);
     }
 
-    @Override
     public void deleteUser(String sid) {
         Long id = null;
 

@@ -14,13 +14,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleException(Exception exception) {
-        return new ErrorMessage(exception.getMessage(), "Serwer ma gorsze chwile");
+        return new ErrorMessage(500, exception.getMessage(), "Serwer ma gorsze chwile", null);
     }
 
-    @ExceptionHandler({UserException.class})
-    @ResponseBody
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorMessage handleUserException(UserException exception) {
-        return new ErrorMessage(exception.getMessage(), exception.getUserMessage());
-    }
 }
