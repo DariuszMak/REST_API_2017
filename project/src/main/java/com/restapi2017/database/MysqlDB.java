@@ -88,6 +88,28 @@ public class MysqlDB {
         return null;
     }
 
+    public User getUserByPesel(String pesel) {
+        List<UserEntity> resultList = getEntityManager().createQuery("SELECT u FROM UserEntity u where u.pesel = :pesel")
+                .setParameter("pesel", pesel)
+                .getResultList();
+
+        List<User> list = Collections.emptyList();
+
+        if (resultList != null && !resultList.isEmpty()) {
+            list = Lists.newArrayListWithCapacity(resultList.size());
+
+            for (UserEntity user : resultList) {
+                list.add(buildUserResponse(user));
+            }
+
+            User user = list.get(0);
+            return user;
+        }
+
+        return null;
+
+    }
+
     public User createUser(final User user) {
         UserEntity entity = buildUserEntity(user);
 

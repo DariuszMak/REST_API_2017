@@ -27,6 +27,15 @@ public class UsersResource {
 
     private MysqlDB userDatabase;
 
+    private boolean checkParameter(String name, int min, int max) {
+        return (name == null || name.length() < min || name.length() > max );
+    }
+
+    private Response badValue(String value) {
+        ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość: " + value +": zła długość lub pominięta", null);
+        return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+    }
+
     @Autowired
     public UsersResource(MysqlDB userDatabase) {
         this.userDatabase = userDatabase;
@@ -61,6 +70,7 @@ public class UsersResource {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "User created"),
             @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 409, message = "Conflict"),
     })
     public Response createUser(@Valid @NotNull User user) {
         User dbUser = new User(
@@ -72,14 +82,29 @@ public class UsersResource {
                 user.getCity()
         );
 
+        if(checkParameter(user.getFirstName(),1,15))
+            return badValue("firstName");
+        if(checkParameter(user.getLastName(),1,30))
+            return badValue("lastName");
+        if(checkParameter(user.getAddress(),1,30))
+            return badValue("address");
+        if(checkParameter(user.getCity(),1,15))
+            return badValue("city");
+
         if (!user.getPesel().matches("[0-9]{11}")) {
             ErrorMessage error = new ErrorMessage(400,"Bad Request", "Wartość 'pesel' musi zawierać 11 cyfr", null);
             return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
         }
 
-        User createdUser = userDatabase.createUser(dbUser);
+        User userByPesel = userDatabase.getUserByPesel(user.getPesel());
 
-        return Response.created(URI.create("/users/" + createdUser.getId())).entity(createdUser).build();
+        if(userByPesel == null) {
+            User createdUser = userDatabase.createUser(dbUser);
+            return Response.created(URI.create("/users/" + createdUser.getId())).entity(createdUser).build();
+        } else {
+            ErrorMessage error = new ErrorMessage(409, "Conflict", "Użytkownik z takim numerem PESEL już istnieje", "/users/" + userByPesel.getId());
+            return Response.status(Response.Status.CONFLICT).entity(error).build();
+        }
 
     }
 
@@ -87,12 +112,41 @@ public class UsersResource {
     @ApiOperation(value = "Update user", notes = "Update user", response = User.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User edited"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 404, message = "User not found")
     })
-    public User updateUser(User user){
+    public Response updateUser(User user){
 
-        User updatedUser = userDatabase.updateUser(user);
+        if(checkParameter(user.getFirstName(),1,15))
+            return badValue("firstName");
+        if(checkParameter(user.getLastName(),1,30))
+            return badValue("lastName");
+        if(checkParameter(user.getAddress(),1,30))
+            return badValue("address");
+        if(checkParameter(user.getCity(),1,15))
+            return badValue("city");
 
-        return updatedUser;
+        if (!user.getPesel().matches("[0-9]{11}")) {
+            ErrorMessage error = new ErrorMessage(400,"Bad Request", "Wartość 'pesel' musi zawierać 11 cyfr", null);
+            return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+        }
+
+        User userByPesel = userDatabase.getUserByPesel(user.getPesel());
+
+        if(userByPesel != null) {
+            ErrorMessage error = new ErrorMessage(409, "Conflict", "Użytkownik z takim numerem PESEL już istnieje", "/users/" + userByPesel.getId());
+            return Response.status(Response.Status.CONFLICT).entity(error).build();
+        }
+
+        User update = userDatabase.getUser(user.getId());
+
+        if(update == null) {
+            ErrorMessage error = new ErrorMessage(404, "Not Found", "Użytkownik z podanym ID nie istnieje w bazie", null);
+            return Response.status(Response.Status.NOT_FOUND).entity(error).build();
+        } else {
+            User updatedUser = userDatabase.updateUser(user);
+            return Response.status(Response.Status.OK).entity(updatedUser).build();
+        }
     }
 
     @DELETE
