@@ -1,8 +1,5 @@
 package com.restapi2017.model;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public class Book {
@@ -12,6 +9,9 @@ public class Book {
         this.authors = authors;
         this.description = description;
         this.price = price;
+    }
+
+    public Book() {
     }
 
     private String id;

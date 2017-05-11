@@ -113,7 +113,8 @@ public class UsersResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User edited"),
             @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 404, message = "User not found")
+            @ApiResponse(code = 404, message = "User not found"),
+            @ApiResponse(code = 409, message = "Conflict"),
     })
     public Response updateUser(User user){
 

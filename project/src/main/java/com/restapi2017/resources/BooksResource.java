@@ -27,6 +27,15 @@ public class BooksResource {
 
     private MysqlDB bookDatabase;
 
+    private boolean checkParameter(String name, int min, int max) {
+        return (name == null || name.length() < min || name.length() > max );
+    }
+
+    private Response badValue(String value) {
+        ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość: " + value +": zła długość lub pominięta", null);
+        return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+    }
+
     @Autowired
     public BooksResource(MysqlDB bookDatabase) {
         this.bookDatabase = bookDatabase;
@@ -49,7 +58,7 @@ public class BooksResource {
         Book book = bookDatabase.getBook(bookId);
 
         if (book == null) {
-            ErrorMessage error = new ErrorMessage(404, "Not Found", "Użytkownik nie został znaleziony", "/books/" + bookId);
+            ErrorMessage error = new ErrorMessage(404, "Not Found", "Książka nie została znaleziona", "/books/" + bookId);
             return Response.status(Response.Status.NOT_FOUND).entity(error).build();
         }
 
@@ -77,6 +86,13 @@ public class BooksResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
         }*/
 
+        if(checkParameter(book.getTitle(),1,40))
+            return badValue("title");
+        if(checkParameter( book.getAuthors(),1,30))
+            return badValue("authors");
+        if(checkParameter(book.getDescription(),1,100))
+            return badValue("description");
+
         Book createdBook = bookDatabase.createBook(dbBook);
 
         return Response.created(URI.create("/books/" + createdBook.getId())).entity(createdBook).build();
@@ -87,12 +103,28 @@ public class BooksResource {
     @ApiOperation(value = "Update book", notes = "Update book", response = Book.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Book edited"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 404, message = "Book not found")
     })
-    public Book updateBook(Book book){
+    public Response updateBook(Book book){
 
-        Book updatedBook = bookDatabase.updateBook(book);
+        if(checkParameter(book.getTitle(),1,40))
+            return badValue("title");
+        if(checkParameter( book.getAuthors(),1,30))
+            return badValue("authors");
+        if(checkParameter(book.getDescription(),1,100))
+            return badValue("description");
 
-        return updatedBook;
+        Book update = bookDatabase.getBook(book.getId());
+
+        if(update == null) {
+            ErrorMessage error = new ErrorMessage(404, "Not Found", "Książka z podanym ID nie istnieje w bazie", null);
+            return Response.status(Response.Status.NOT_FOUND).entity(error).build();
+        } else {
+            Book updatedBook = bookDatabase.updateBook(book);
+            return Response.status(Response.Status.OK).entity(updatedBook).build();
+        }
+
     }
 
     @DELETE
@@ -106,7 +138,7 @@ public class BooksResource {
         Book book = bookDatabase.getBook(bookId);
 
         if (book == null) {
-            ErrorMessage error = new ErrorMessage(404, "Not Found", "Użytkownik nie został znaleziony", "/books/" + bookId);
+            ErrorMessage error = new ErrorMessage(404, "Not Found", "Książka nie została znaleziona", "/books/" + bookId);
             return Response.status(Response.Status.NOT_FOUND).entity(error).build();
         }
 
