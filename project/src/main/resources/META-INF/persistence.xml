@@ -7,6 +7,7 @@
         <description>My Persistence Unit</description>
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>com.restapi2017.entity.UserEntity</class>
+        <class>com.restapi2017.entity.BookEntity</class>
     </persistence-unit>
 
 </persistence>
