@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 @NamedQueries({
         @NamedQuery(name = "users.findAll", query = "SELECT u FROM UserEntity u")
 })
-public class UserEntity {
+public class UserEntity extends AbstractEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

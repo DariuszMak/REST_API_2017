@@ -1,8 +1,8 @@
 package com.restapi2017.resources;
 
-import com.restapi2017.database.MysqlDB;
 import com.restapi2017.model.ErrorMessage;
 import com.restapi2017.model.Book;
+import com.restapi2017.repository.BookRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,7 +16,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Collection;
 
 @RestController
 @Path("/books")
@@ -25,7 +24,7 @@ import java.util.Collection;
 @Api(value = "/books", description = "Operations on books using mysql")
 public class BooksResource {
 
-    private MysqlDB bookDatabase;
+    private BookRepository bookDatabase;
 
     private boolean checkParameter(String name, int min, int max) {
         return (name == null || name.length() < min || name.length() > max );
@@ -37,14 +36,17 @@ public class BooksResource {
     }
 
     @Autowired
-    public BooksResource(MysqlDB bookDatabase) {
+    public BooksResource(BookRepository bookDatabase) {
         this.bookDatabase = bookDatabase;
     }
 
     @GET
     @ApiOperation(value = "Get books collection", notes = "Get books collection", response = Book.class, responseContainer = "LIST")
-    public Collection<Book> list() {
-        return bookDatabase.getBooks();
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Book collection found")
+    })
+    public Response list() {
+        return Response.status(Response.Status.OK).entity(bookDatabase.getBooks()).build();
     }
 
     @GET

@@ -1,8 +1,8 @@
 package com.restapi2017.resources;
 
-import com.restapi2017.database.MysqlDB;
 import com.restapi2017.model.ErrorMessage;
 import com.restapi2017.model.User;
+import com.restapi2017.repository.UserRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,7 +16,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Collection;
 
 @RestController
 @Path("/users")
@@ -25,7 +24,7 @@ import java.util.Collection;
 @Api(value = "/users", description = "Operations on users using mysql")
 public class UsersResource {
 
-    private MysqlDB userDatabase;
+    private UserRepository userDatabase;
 
     private boolean checkParameter(String name, int min, int max) {
         return (name == null || name.length() < min || name.length() > max );
@@ -37,14 +36,17 @@ public class UsersResource {
     }
 
     @Autowired
-    public UsersResource(MysqlDB userDatabase) {
+    public UsersResource(UserRepository userDatabase) {
         this.userDatabase = userDatabase;
     }
 
     @GET
     @ApiOperation(value = "Get users collection", notes = "Get users collection", response = User.class, responseContainer = "LIST")
-    public Collection<User> list() {
-        return userDatabase.getUsers();
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User collection found")
+    })
+    public Response list() {
+        return Response.status(Response.Status.OK).entity(userDatabase.getUsers()).build();
     }
 
     @GET

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @NamedQueries({
         @NamedQuery(name = "books.findAll", query = "SELECT b FROM BookEntity b")
 })
-public class BookEntity {
+public class BookEntity extends AbstractEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
