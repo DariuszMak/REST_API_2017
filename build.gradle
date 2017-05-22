@@ -16,6 +16,7 @@ apply plugin: 'org.springframework.boot'
 
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
@@ -35,4 +36,8 @@ dependencies {
 
 	compile('org.springframework.boot:spring-boot-starter-jersey')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+springBoot {
+	mainClass = "com.restapi2017.ProjectApplication"
 }
