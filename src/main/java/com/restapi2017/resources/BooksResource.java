@@ -19,8 +19,6 @@ import java.net.URI;
 
 @RestController
 @Path("/books")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/books", description = "Operations on books using mysql")
 public class BooksResource {
 
@@ -41,6 +39,7 @@ public class BooksResource {
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get books collection", notes = "Get books collection", response = Book.class, responseContainer = "LIST")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Book collection found")
@@ -51,6 +50,7 @@ public class BooksResource {
 
     @GET
     @Path("/{bookId}")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get book by id", notes = "[note]Get book by id", response = Book.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Book found"),
@@ -68,6 +68,8 @@ public class BooksResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Create book", notes = "Create book", response = Book.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Book created"),
@@ -83,11 +85,6 @@ public class BooksResource {
 
         );
 
-       /* if (!book.getPesel().matches("[0-9]{11}")) {
-            ErrorMessage error = new ErrorMessage(400,"Bad Request", "Wartość 'pesel' musi zawierać 11 cyfr", null);
-            return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
-        }*/
-
         if(checkParameter(book.getTitle(),1,40))
             return badValue("title");
         if(checkParameter( book.getAuthors(),1,30))
@@ -102,13 +99,16 @@ public class BooksResource {
     }
 
     @PUT
+    @Path("/{bookId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Update book", notes = "Update book", response = Book.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Book edited"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 404, message = "Book not found")
     })
-    public Response updateBook(Book book){
+    public Response updateBook(@PathParam("bookId") String bookId,Book book){
 
         if(checkParameter(book.getTitle(),1,40))
             return badValue("title");
@@ -117,13 +117,13 @@ public class BooksResource {
         if(checkParameter(book.getDescription(),1,100))
             return badValue("description");
 
-        Book update = bookDatabase.getBook(book.getId());
+        Book update = bookDatabase.getBook(bookId);
 
         if(update == null) {
             ErrorMessage error = new ErrorMessage(404, "Not Found", "Książka z podanym ID nie istnieje w bazie", null);
             return Response.status(Response.Status.NOT_FOUND).entity(error).build();
         } else {
-            Book updatedBook = bookDatabase.updateBook(book);
+            Book updatedBook = bookDatabase.updateBook(book, bookId);
             return Response.status(Response.Status.OK).entity(updatedBook).build();
         }
 
@@ -131,6 +131,7 @@ public class BooksResource {
 
     @DELETE
     @Path("/{bookId}")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Delete book", notes = "Delete book")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Book deleted"),

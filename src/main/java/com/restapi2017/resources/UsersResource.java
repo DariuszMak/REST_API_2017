@@ -3,10 +3,7 @@ package com.restapi2017.resources;
 import com.restapi2017.model.ErrorMessage;
 import com.restapi2017.model.User;
 import com.restapi2017.repository.UserRepository;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +16,6 @@ import java.net.URI;
 
 @RestController
 @Path("/users")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/users", description = "Operations on users using mysql")
 public class UsersResource {
 
@@ -41,16 +36,24 @@ public class UsersResource {
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get users collection", notes = "Get users collection", response = User.class, responseContainer = "LIST")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User collection found")
     })
-    public Response list() {
-        return Response.status(Response.Status.OK).entity(userDatabase.getUsers()).build();
+    public Response list(
+            @ApiParam(value = "Miasto") @QueryParam("city") String city
+    ) {
+        if (city != null) {
+            return Response.status(Response.Status.OK).entity(userDatabase.getUsersByCity(city)).build();
+        }else{
+            return Response.status(Response.Status.OK).entity(userDatabase.getUsers()).build();
+        }
     }
 
     @GET
     @Path("/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get user by id", notes = "[note]Get user by id", response = User.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User found"),
@@ -68,6 +71,8 @@ public class UsersResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Create user", notes = "Create user", response = User.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "User created"),
@@ -111,6 +116,9 @@ public class UsersResource {
     }
 
     @PUT
+    @Path("/{userId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Update user", notes = "Update user", response = User.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User edited"),
@@ -118,7 +126,7 @@ public class UsersResource {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 409, message = "Conflict"),
     })
-    public Response updateUser(User user){
+    public Response updateUser(@PathParam("userId") String userId, User user){
 
         if(checkParameter(user.getFirstName(),1,15))
             return badValue("firstName");
@@ -136,24 +144,25 @@ public class UsersResource {
 
         User userByPesel = userDatabase.getUserByPesel(user.getPesel());
 
-        if(userByPesel != null) {
+        if(userByPesel != null && !userByPesel.getId().equals(userId)) {
             ErrorMessage error = new ErrorMessage(409, "Conflict", "Użytkownik z takim numerem PESEL już istnieje", "/users/" + userByPesel.getId());
             return Response.status(Response.Status.CONFLICT).entity(error).build();
         }
 
-        User update = userDatabase.getUser(user.getId());
+        User update = userDatabase.getUser(userId);
 
         if(update == null) {
             ErrorMessage error = new ErrorMessage(404, "Not Found", "Użytkownik z podanym ID nie istnieje w bazie", null);
             return Response.status(Response.Status.NOT_FOUND).entity(error).build();
         } else {
-            User updatedUser = userDatabase.updateUser(user);
+            User updatedUser = userDatabase.updateUser(user, userId);
             return Response.status(Response.Status.OK).entity(updatedUser).build();
         }
     }
 
     @DELETE
     @Path("/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Delete user", notes = "Delete user")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User deleted"),

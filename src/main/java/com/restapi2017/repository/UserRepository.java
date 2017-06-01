@@ -39,6 +39,24 @@ public class UserRepository {
         return list;
     }
 
+    public Collection<User> getUsersByCity(String city) {
+        List<UserEntity> resultList = databaseConfiguration.getEntityManager().createQuery("SELECT u FROM UserEntity u where u.city = :city")
+                .setParameter("city", city)
+                .getResultList();
+
+        List<User> list = Collections.emptyList();
+
+        if (resultList != null && !resultList.isEmpty()) {
+            list = Lists.newArrayListWithCapacity(resultList.size());
+
+            for (UserEntity user : resultList) {
+                list.add(buildUserResponse(user));
+            }
+        }
+
+        return list;
+    }
+
     public User getUser(String sid) {
         Long id = null;
 
@@ -89,11 +107,11 @@ public class UserRepository {
                 entity.getAddress(), entity.getCity());
     }
 
-    public User updateUser(User user) {
+    public User updateUser(User user, String userId) {
         Long id = null;
 
         try {
-            id = Long.valueOf(user.getId());
+            id = Long.valueOf(userId);
         } catch (NumberFormatException e) {
             return null;
         }

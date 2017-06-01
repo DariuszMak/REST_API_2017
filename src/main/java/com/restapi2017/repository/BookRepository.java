@@ -67,11 +67,11 @@ public class BookRepository {
                 entity.getPrice());
     }
 
-    public Book updateBook(Book book) {
+    public Book updateBook(Book book, String bookId) {
         Long id = null;
 
         try {
-            id = Long.valueOf(book.getId());
+            id = Long.valueOf(bookId);
         } catch (NumberFormatException e) {
             return null;
         }
