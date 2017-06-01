@@ -4,7 +4,11 @@ import com.restapi2017.model.ErrorMessage;
 import com.restapi2017.model.User;
 import com.restapi2017.repository.UserRepository;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -20,6 +24,8 @@ import java.net.URI;
 public class UsersResource {
 
     private UserRepository userDatabase;
+
+    private static Logger logger = LoggerFactory.getLogger(UsersResource.class);
 
     private boolean checkParameter(String name, int min, int max) {
         return (name == null || name.length() < min || name.length() > max );
@@ -80,6 +86,19 @@ public class UsersResource {
             @ApiResponse(code = 409, message = "Conflict"),
     })
     public Response createUser(@Valid @NotNull User user) {
+        logger.info("POST /users");
+
+        UserDetails userDetails =
+                (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        logger.info("User name:  {}", userDetails.getUsername());
+
+        logger.info("User password:  {}", userDetails.getPassword());
+
+        logger.info("Account NonExpired:  {}", userDetails.isAccountNonExpired());
+
+        logger.info("User granted roles:  {}", userDetails.getAuthorities());
+
         User dbUser = new User(
                 "",
                 user.getFirstName(),
@@ -128,6 +147,19 @@ public class UsersResource {
     })
     public Response updateUser(@PathParam("userId") String userId, User user){
 
+        logger.info("PUT /users");
+
+        UserDetails userDetails =
+                (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        logger.info("User name:  {}", userDetails.getUsername());
+
+        logger.info("User password:  {}", userDetails.getPassword());
+
+        logger.info("Account NonExpired:  {}", userDetails.isAccountNonExpired());
+
+        logger.info("User granted roles:  {}", userDetails.getAuthorities());
+
         if(checkParameter(user.getFirstName(),1,15))
             return badValue("firstName");
         if(checkParameter(user.getLastName(),1,30))
@@ -169,6 +201,20 @@ public class UsersResource {
             @ApiResponse(code = 404, message = "User not found")
     })
     public Response deleteUser(@PathParam("userId") String userId){
+
+        logger.info("DELETE /users");
+
+        UserDetails userDetails =
+                (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        logger.info("User name:  {}", userDetails.getUsername());
+
+        logger.info("User password:  {}", userDetails.getPassword());
+
+        logger.info("Account NonExpired:  {}", userDetails.isAccountNonExpired());
+
+        logger.info("User granted roles:  {}", userDetails.getAuthorities());
+
         User user = userDatabase.getUser(userId);
 
         if (user == null) {

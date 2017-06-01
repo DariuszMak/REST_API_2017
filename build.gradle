@@ -35,6 +35,7 @@ dependencies {
 	compile('io.swagger:swagger-jersey2-jaxrs:1.5.0')
 
 	compile('org.springframework.boot:spring-boot-starter-jersey')
+	compile('org.springframework.boot:spring-boot-starter-security')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
