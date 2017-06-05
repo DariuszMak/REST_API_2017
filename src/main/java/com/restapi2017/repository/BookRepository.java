@@ -99,7 +99,7 @@ public class BookRepository {
         try {
             id = Long.valueOf(sid);
         } catch (NumberFormatException e) {
-            return ;
+            return;
         }
 
         BookEntity bookEntity = databaseConfiguration.getEntityManager()

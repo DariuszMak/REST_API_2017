@@ -139,7 +139,7 @@ public class UserRepository {
         try {
             id = Long.valueOf(sid);
         } catch (NumberFormatException e) {
-            return ;
+            return;
         }
 
         UserEntity userEntity = databaseConfiguration.getEntityManager()

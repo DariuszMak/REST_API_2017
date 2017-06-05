@@ -25,11 +25,11 @@ public class BooksResource {
     private BookRepository bookDatabase;
 
     private boolean checkParameter(String name, int min, int max) {
-        return (name == null || name.length() < min || name.length() > max );
+        return (name == null || name.length() < min || name.length() > max);
     }
 
     private Response badValue(String value) {
-        ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość: " + value +": zła długość lub pominięta", null);
+        ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość: " + value + ": zła długość lub pominięta", null);
         return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
     }
 
@@ -85,11 +85,11 @@ public class BooksResource {
 
         );
 
-        if(checkParameter(book.getTitle(),1,40))
+        if (checkParameter(book.getTitle(), 1, 40))
             return badValue("title");
-        if(checkParameter( book.getAuthors(),1,30))
+        if (checkParameter(book.getAuthors(), 1, 30))
             return badValue("authors");
-        if(checkParameter(book.getDescription(),1,100))
+        if (checkParameter(book.getDescription(), 1, 100))
             return badValue("description");
 
         Book createdBook = bookDatabase.createBook(dbBook);
@@ -108,18 +108,18 @@ public class BooksResource {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 404, message = "Book not found")
     })
-    public Response updateBook(@PathParam("bookId") String bookId,Book book){
+    public Response updateBook(@PathParam("bookId") String bookId, Book book) {
 
-        if(checkParameter(book.getTitle(),1,40))
+        if (checkParameter(book.getTitle(), 1, 40))
             return badValue("title");
-        if(checkParameter( book.getAuthors(),1,30))
+        if (checkParameter(book.getAuthors(), 1, 30))
             return badValue("authors");
-        if(checkParameter(book.getDescription(),1,100))
+        if (checkParameter(book.getDescription(), 1, 100))
             return badValue("description");
 
         Book update = bookDatabase.getBook(bookId);
 
-        if(update == null) {
+        if (update == null) {
             ErrorMessage error = new ErrorMessage(404, "Not Found", "Książka z podanym ID nie istnieje w bazie", null);
             return Response.status(Response.Status.NOT_FOUND).entity(error).build();
         } else {
@@ -137,7 +137,7 @@ public class BooksResource {
             @ApiResponse(code = 200, message = "Book deleted"),
             @ApiResponse(code = 404, message = "Book not found")
     })
-    public Response deleteBook(@PathParam("bookId") String bookId){
+    public Response deleteBook(@PathParam("bookId") String bookId) {
         Book book = bookDatabase.getBook(bookId);
 
         if (book == null) {

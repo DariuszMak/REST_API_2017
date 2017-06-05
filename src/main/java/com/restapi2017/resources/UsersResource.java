@@ -28,11 +28,11 @@ public class UsersResource {
     private static Logger logger = LoggerFactory.getLogger(UsersResource.class);
 
     private boolean checkParameter(String name, int min, int max) {
-        return (name == null || name.length() < min || name.length() > max );
+        return (name == null || name.length() < min || name.length() > max);
     }
 
     private Response badValue(String value) {
-        ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość: " + value +": zła długość lub pominięta", null);
+        ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość: " + value + ": zła długość lub pominięta", null);
         return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
     }
 
@@ -52,7 +52,7 @@ public class UsersResource {
     ) {
         if (city != null) {
             return Response.status(Response.Status.OK).entity(userDatabase.getUsersByCity(city)).build();
-        }else{
+        } else {
             return Response.status(Response.Status.OK).entity(userDatabase.getUsers()).build();
         }
     }
@@ -108,23 +108,23 @@ public class UsersResource {
                 user.getCity()
         );
 
-        if(checkParameter(user.getFirstName(),1,15))
+        if (checkParameter(user.getFirstName(), 1, 15))
             return badValue("firstName");
-        if(checkParameter(user.getLastName(),1,30))
+        if (checkParameter(user.getLastName(), 1, 30))
             return badValue("lastName");
-        if(checkParameter(user.getAddress(),1,30))
+        if (checkParameter(user.getAddress(), 1, 30))
             return badValue("address");
-        if(checkParameter(user.getCity(),1,15))
+        if (checkParameter(user.getCity(), 1, 15))
             return badValue("city");
 
         if (!user.getPesel().matches("[0-9]{11}")) {
-            ErrorMessage error = new ErrorMessage(400,"Bad Request", "Wartość 'pesel' musi zawierać 11 cyfr", null);
+            ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość 'pesel' musi zawierać 11 cyfr", null);
             return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
         }
 
         User userByPesel = userDatabase.getUserByPesel(user.getPesel());
 
-        if(userByPesel == null) {
+        if (userByPesel == null) {
             User createdUser = userDatabase.createUser(dbUser);
             return Response.created(URI.create("/users/" + createdUser.getId())).entity(createdUser).build();
         } else {
@@ -145,7 +145,7 @@ public class UsersResource {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 409, message = "Conflict"),
     })
-    public Response updateUser(@PathParam("userId") String userId, User user){
+    public Response updateUser(@PathParam("userId") String userId, User user) {
 
         logger.info("PUT /users");
 
@@ -160,30 +160,30 @@ public class UsersResource {
 
         logger.info("User granted roles:  {}", userDetails.getAuthorities());
 
-        if(checkParameter(user.getFirstName(),1,15))
+        if (checkParameter(user.getFirstName(), 1, 15))
             return badValue("firstName");
-        if(checkParameter(user.getLastName(),1,30))
+        if (checkParameter(user.getLastName(), 1, 30))
             return badValue("lastName");
-        if(checkParameter(user.getAddress(),1,30))
+        if (checkParameter(user.getAddress(), 1, 30))
             return badValue("address");
-        if(checkParameter(user.getCity(),1,15))
+        if (checkParameter(user.getCity(), 1, 15))
             return badValue("city");
 
         if (!user.getPesel().matches("[0-9]{11}")) {
-            ErrorMessage error = new ErrorMessage(400,"Bad Request", "Wartość 'pesel' musi zawierać 11 cyfr", null);
+            ErrorMessage error = new ErrorMessage(400, "Bad Request", "Wartość 'pesel' musi zawierać 11 cyfr", null);
             return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
         }
 
         User userByPesel = userDatabase.getUserByPesel(user.getPesel());
 
-        if(userByPesel != null && !userByPesel.getId().equals(userId)) {
+        if (userByPesel != null && !userByPesel.getId().equals(userId)) {
             ErrorMessage error = new ErrorMessage(409, "Conflict", "Użytkownik z takim numerem PESEL już istnieje", "/users/" + userByPesel.getId());
             return Response.status(Response.Status.CONFLICT).entity(error).build();
         }
 
         User update = userDatabase.getUser(userId);
 
-        if(update == null) {
+        if (update == null) {
             ErrorMessage error = new ErrorMessage(404, "Not Found", "Użytkownik z podanym ID nie istnieje w bazie", null);
             return Response.status(Response.Status.NOT_FOUND).entity(error).build();
         } else {
@@ -200,7 +200,7 @@ public class UsersResource {
             @ApiResponse(code = 200, message = "User deleted"),
             @ApiResponse(code = 404, message = "User not found")
     })
-    public Response deleteUser(@PathParam("userId") String userId){
+    public Response deleteUser(@PathParam("userId") String userId) {
 
         logger.info("DELETE /users");
 

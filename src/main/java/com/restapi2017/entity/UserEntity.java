@@ -10,30 +10,35 @@ import javax.validation.constraints.Size;
 @NamedQueries({
         @NamedQuery(name = "users.findAll", query = "SELECT u FROM UserEntity u")
 })
-public class UserEntity extends AbstractEntity{
+public class UserEntity extends AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(name = "firstName")
-    @NotNull @Size(min = 1, max = 15)
+    @NotNull
+    @Size(min = 1, max = 15)
     private String firstName;
 
     @Column(name = "lastName")
-    @NotNull @Size(min = 1, max = 30)
+    @NotNull
+    @Size(min = 1, max = 30)
     private String lastName;
 
     @Column(name = "pesel")
-    @NotNull @Pattern(regexp ="[0-9]{11}")
+    @NotNull
+    @Pattern(regexp = "[0-9]{11}")
     private String pesel;
 
     @Column(name = "address")
-    @NotNull @Size(min = 1, max = 30)
+    @NotNull
+    @Size(min = 1, max = 30)
     private String address;
 
     @Column(name = "city")
-    @NotNull @Size(min = 1, max = 15)
+    @NotNull
+    @Size(min = 1, max = 15)
     private String city;
 
     public UserEntity() {
@@ -106,8 +111,6 @@ public class UserEntity extends AbstractEntity{
                 ", city='" + city + '\'' +
                 '}';
     }
-
-
 
 
 }

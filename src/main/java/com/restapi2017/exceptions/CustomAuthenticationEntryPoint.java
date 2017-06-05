@@ -13,8 +13,8 @@ import java.io.IOException;
 public class CustomAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException ) throws IOException, ServletException {
-        response.addHeader("WWW-Authenticate", "Basic realm=" +getRealmName());
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        response.addHeader("WWW-Authenticate", "Basic realm=" + getRealmName());
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getOutputStream().println("{ \"message\": \"" + authException.getMessage() + "\", \"code\": \"BAD_CREDENTIALS\" }");
