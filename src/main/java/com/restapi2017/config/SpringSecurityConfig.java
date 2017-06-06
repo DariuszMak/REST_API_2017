@@ -33,7 +33,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT)
                 .hasRole("ADMIN");
 
-        http.httpBasic();
+        http.httpBasic().realmName("BasicAuthRealm")
+                .authenticationEntryPoint(getBasicAuthEntryPoint());
 
         http.csrf().disable();
 
